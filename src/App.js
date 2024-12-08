@@ -49,6 +49,7 @@ class App extends React.Component {
     this.setState({ location: e.target.value });
   };
   fetchData = async () => {
+    if (this.state.location.length < 2) return this.setState({ weather: {} });
     try {
       this.setState({ isLoading: true });
       // 1) Getting location (geocoding)
@@ -78,7 +79,15 @@ class App extends React.Component {
       this.setState({ isLoading: false });
     }
   };
-
+  componentDidMount() {
+    this.setState({ location: localStorage.getItem("location") ?? "" });
+  }
+  componentDidUpdate(prevprop, prevstate) {
+    if (this.state.location !== prevstate.location) {
+      this.fetchData();
+      localStorage.setItem("location", this.state.location);
+    }
+  }
   render() {
     return (
       <div className="app">
@@ -89,7 +98,6 @@ class App extends React.Component {
             handelLocation={this.handelLocation}
           />
         </div>
-        <button onClick={this.fetchData}> Get Weather</button>
         {this.state.isLoading && <p className="loader"> loading...</p>}
         {this.state.weather.weathercode && (
           <Weather
